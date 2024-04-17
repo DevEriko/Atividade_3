@@ -1,8 +1,17 @@
 import { faker } from '@faker-js/faker'
+
 const name = faker.internet.userName()
 const email = faker.internet.email()
 var token
 describe('Atividade 3 - Validar metodos de consulta de filmes', function () {
+    it('Deve consultar uma lista de filmes ', function () {
+        cy.request({
+            method: 'GET',
+            url: '/movies',
+        }).then(function (response) {
+            expect(response.status).to.equal(200)
+        });
+    });
     before(function () {
         cy.request({
             method: 'POST',
@@ -31,7 +40,7 @@ describe('Atividade 3 - Validar metodos de consulta de filmes', function () {
             })
             cy.request({
                 method: "POST",
-                url: 'https://raromdb-3c39614e42d4.herokuapp.com/api/movies',
+                url: '/movies',
                 body: {
                     "title": "Missão Impossivel",
                     "genre": "Ação",
@@ -45,14 +54,15 @@ describe('Atividade 3 - Validar metodos de consulta de filmes', function () {
             });
         });
     });
-    it('Deve consultar uma lista de filmes', function () {
+});
+
+describe('Atividade 3 - Consultar um filme existente', function () {
+    it('É possivel a lista de filmes ser uma ARRAY', function () {
         cy.request({
             method: 'GET',
             url: '/movies',
         }).then(function (response) {
-            expect(response.status).to.equal(200)
-            expect(response.body).to.be.an("array")
-        });
+            expect(response.body).to.be.an('array')
+        })
     });
 });
-
