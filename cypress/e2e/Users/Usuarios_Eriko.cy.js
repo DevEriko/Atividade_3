@@ -37,7 +37,9 @@ describe('Atividade 3 - Criação de usuário', function () {
             expect(response.body.email).to.equal(email)
         });
     });
+});
 
+describe('Atividade 3 - BAD REQUEST', function () {
     it('Deve retornar um erro ao tentar criar um usuário com email inválido', function () {
         const name = "Eriko"
         const email = "eriko.com.br"
