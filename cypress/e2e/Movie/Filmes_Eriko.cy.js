@@ -1,8 +1,8 @@
 import { faker } from '@faker-js/faker'
-
 const name = faker.internet.userName()
 const email = faker.internet.email()
 var token
+let filme
 describe('Atividade 3 - Validar metodos de consulta de filmes', function () {
     it('Deve consultar uma lista de filmes ', function () {
         cy.request({
@@ -63,6 +63,29 @@ describe('Atividade 3 - Consultar um filme existente', function () {
             url: '/movies',
         }).then(function (response) {
             expect(response.body).to.be.an('array')
+            const listaDeFilmes = response.body;
+            filme = listaDeFilmes[listaDeFilmes.length - 1]
+            cy.log(filme)
         })
     });
+
+    it('Deve ser possivel fazer uma busca de filme por id', function () {
+        cy.request({
+            method: 'GET',
+            url: '/movies/' + filme.id
+        }).then(function (response) {
+            expect(response.status).to.equal(200)
+            expect(response.body.id).to.be.an("number")
+        })
+    })
+
+    it('Deve validar se o retorno do título é uma string', function () {
+        cy.request({
+            method: 'GET',
+            url: '/movies/' + filme.id
+        }).then(function (response) {
+            expect(response.status).to.equal(200)
+            expect(response.body.title).to.be.an("string")
+        })
+    })
 });
