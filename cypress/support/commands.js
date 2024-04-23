@@ -75,7 +75,7 @@ Cypress.Commands.add('criarUsuario', function () {
                     idUsuario: idUsuario,
                     token: token
                 }
-            })
+            });
         });
     });
 });
@@ -98,7 +98,8 @@ Cypress.Commands.add('criarFilme', function (token) {
         headers: {
             Authorization: 'Bearer ' + token
         }
-    }).then(function () {
-        return { titulo: title, descricao: description }
-    })
+    }).then(function (response) {
+        expect(response.status).to.equal(201)
+        expect(response.body).to.have.property('title')
+    });
 });
