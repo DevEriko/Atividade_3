@@ -34,7 +34,7 @@ Cypress.Commands.add('deletarUsuario', function (id, token) {
         headers: {
             Authorization: 'Bearer ' + token
         }
-    });
+    }).as('Usuário Deletado')
 });
 
 Cypress.Commands.add('criarUsuario', function () {
@@ -50,34 +50,37 @@ Cypress.Commands.add('criarUsuario', function () {
             email: email,
             password: '123456'
         }
-    }).then(function (response) {
-        expect(response.status).to.equal(201)
-        idUsuario = response.body.id
-        return cy.request({
-            method: 'POST',
-            url: '/auth/login',
-            body: {
-                email: email,
-                password: '123456'
-            }
-        }).then(function (response) {
-            expect(response.status).to.equal(200)
-            token = response.body.accessToken;
-            cy.request({
-                method: 'PATCH',
-                url: '/users/admin',
-                headers: {
-                    Authorization: 'Bearer ' + token
+    }).as('Usuário Criado')
+        .then(function (response) {
+            expect(response.status).to.equal(201)
+            idUsuario = response.body.id
+            return cy.request({
+                method: 'POST',
+                url: '/auth/login',
+                body: {
+                    email: email,
+                    password: '123456'
                 }
-            }).then(function () {
-                expect(response.status).to.equal(200)
-                return {
-                    idUsuario: idUsuario,
-                    token: token
-                }
-            });
+            }).as('Usuário Logado')
+                .then(function (response) {
+                    expect(response.status).to.equal(200)
+                    token = response.body.accessToken;
+                    cy.request({
+                        method: 'PATCH',
+                        url: '/users/admin',
+                        headers: {
+                            Authorization: 'Bearer ' + token
+                        }
+                    }).as('Usuário Administrador')
+                        .then(function () {
+                            expect(response.status).to.equal(200)
+                            return {
+                                idUsuario: idUsuario,
+                                token: token
+                            }
+                        });
+                });
         });
-    });
 });
 
 Cypress.Commands.add('criarFilme', function (token) {

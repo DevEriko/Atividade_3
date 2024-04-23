@@ -1,12 +1,12 @@
 import { faker } from '@faker-js/faker'
 var reviewText = faker.person.fullName();
 
-describe('Testar a rota POST,  validar os usuários que farão as reviews, e criar reviews feitas por usuários', function () {
+describe('Testar os usuários que farão as reviews. Criar uma Review. Consultar uma reviw feita por usuário', function () {
 
     var token;
     var idUsuario;
     var idFilme
-    // Primeiro temos que montar o código referente a criação do usuário que fara as reviews dos filmes
+    // Primeiro temos que montar o código referente a criação e a consulta do usuário que fara as reviews dos filmes
 
     before(function () {
         cy.log('Usando credênciais de um usuário autorizado')
@@ -28,14 +28,15 @@ describe('Testar a rota POST,  validar os usuários que farão as reviews, e cri
         });
     });
 
-    // Nesta função nós deletamos sempre os usuário para não encher o banco de dados sempre que criamos um usuário // 
+    // Nesta função nós deletamos sempre os usuário para não encher a nossa base // 
 
     after(function () {
+        cy.log('Apenas usuários administradores podem exluir filmes')
         cy.deletarUsuario(idUsuario, token);
-    });
+    })
 
-    it('Deve ser possível criar uma review com usuário autorizado', function () {
-        cy.log("Criando uma review usando um usuário autorizado!")
+    it('Apenas usuário autorizado poderá criar uma review', function () {
+        cy.log("Review Criada!")
         cy.request({
             method: 'POST',
             url: '/users/review',
@@ -54,8 +55,8 @@ describe('Testar a rota POST,  validar os usuários que farão as reviews, e cri
         });
     });
 
-    it('Não deve ser possível criar uma review sem o token de autorização', function () {
-        cy.log("Criando uma review sem o token de autorização para retornar um erro de não autorizado (401)")
+    it('Deve aparecer uma mensagem de erro (401) caso o usuário não seja autorizado', function () {
+        // Lembrando que para o cadastro de filmes o usuário deve ser autorizado //
         cy.request({
             method: 'POST',
             url: '/users/review',
@@ -65,6 +66,7 @@ describe('Testar a rota POST,  validar os usuários que farão as reviews, e cri
             },
             failOnStatusCode: false
         }).then(function (response) {
+            cy.log('Usuário não autorizado')
             expect(response.status).to.equal(401)
             expect(response.body).to.deep.equal({
                 "message": "Access denied.",
@@ -74,7 +76,7 @@ describe('Testar a rota POST,  validar os usuários que farão as reviews, e cri
         });
     });
 
-    it('Não deve ser possivel criar uma review sem o campo Movie Id preenchido', function () {
+    it('Deve aparecer erro (Bad Request - 400) ao criar uma review sem o campo Movie Id preenchido', function () {
         cy.request({
             method: 'POST',
             url: '/users/review',
@@ -99,6 +101,35 @@ describe('Testar a rota POST,  validar os usuários que farão as reviews, e cri
             })
         });
     })
-});
 
-
+    it('Verificar a lista de filmes para consulta', function () {
+        let comprimentoDoArray;
+        let title;
+        let genre;
+        let description;
+        cy.request({
+            method: 'GET',
+            url: '/movies',
+        }).then(function (response) {
+            comprimentoDoArray = response.body.length - 1
+            idFilme = response.body[comprimentoDoArray].id
+            cy.request({
+                method: 'GET',
+                url: '/movies/',
+                body: {
+                    title: title,
+                    genre: genre,
+                    description: description,
+                    durationInMinutes: 151,
+                    releaseYear: 2015,
+                },
+                headers: {
+                    Authorization: 'Bearer ' + token
+                },
+            }).then(function () {
+                expect(response.status).to.equal(200)
+                expect(response.body).to.be.an('Array')
+            })
+        })
+    })
+})
