@@ -39,7 +39,7 @@ describe('Atividade 4 - Apenas usuários administradores podem cadastrar filmes'
     });
   });
 
-  it.only('Não deve ser possível criar um filme se o genero não for uma string', function () {
+  it('Não deve ser possível criar um filme se o genero não for uma string', function () {
     cy.request({
       method: 'POST',
       url: '/movies',
