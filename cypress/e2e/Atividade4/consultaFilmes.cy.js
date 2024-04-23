@@ -21,7 +21,7 @@ describe('Validar metodos de consulta de filmes', function () {
     after(function () {
         cy.log('Apenas os usuários administradores podem excluir filmes')
         cy.deletarUsuario(idUsuario, token);
-    }).as('Usuário Deletado')
+    })
 
     it('Apenas usuários administradores pode cadastrar filmes', function () {
         cy.log('Filme Cadastrado')
